@@ -1,7 +1,7 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django import forms
-from .models import Client
+from .models import Client, Order, Service, Product
 
 class RegistrationForm(UserCreationForm):
 	email = forms.EmailField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Email Address'}))
@@ -40,4 +40,42 @@ class AddClientForm(forms.ModelForm):
 	class Meta:
 		model = Client
 		exclude = ("user",)
+
+# New order form
+class NewOrderForm(forms.ModelForm):
+	amount = forms.DecimalField(label="", max_digits=10, decimal_places=2, widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Enter Amount'}))
+
+	class Meta:
+		model = Order
+		fields = ['amount']
+
+	def __init__(self, *args, **kwargs):
+		self.client = kwargs.pop('client', None)
+		super().__init__(*args, **kwargs)
+
+	
+	
+# New Service form
+class NewServiceForm(forms.ModelForm):
+	amount = forms.DecimalField(label="", max_digits=10, decimal_places=2, widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Enter Amount'}))
+	service_name = forms.CharField(label="", max_length=100, widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Service Name'}))
+
+	class Meta:
+		model = Service
+		fields = ['service_name', 'amount']
+
+	def __init__(self, *args, **kwargs):
+		self.client = kwargs.pop('client', None)
+		super().__init__(*args, **kwargs)	
 		
+class NewProductForm(forms.ModelForm):
+	price = forms.DecimalField(label="", max_digits=10, decimal_places=2, widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Enter Price'}))
+	product_name = forms.CharField(label="", max_length=100, widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Product Name'}))
+
+	class Meta:
+		model = Product
+		fields = ['product_name', 'price']
+
+	def __init__(self, *args, **kwargs):
+		self.client = kwargs.pop('client', None)
+		super().__init__(*args, **kwargs)

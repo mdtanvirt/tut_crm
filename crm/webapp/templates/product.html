@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h1>Product purchase </h1>
+
+<p>
+    <a href="{% url 'new_product' client.id %}" class="btn btn-primary">New Product</a>
+    </p>
+    
+    <div class="card">
+        <h5 class="card-header">{{ client.id }} . {{ client.full_name }}</h5>
+        <div class="card-body">
+          <h5 class="card-title">{{ client.email }}</h5>
+            {{ client.address }} <br>
+            {% for product in products %}
+            <li>
+                {{product.product_name}} - $ {{ product.price }} - {{ product.date }}
+            </li>
+            {% endfor %}
+          </p>
+          <a href="{% url 'home' %}" class="btn btn-primary">Go Back</a>
+        </div>
+      </div>
+
+{% endblock %}

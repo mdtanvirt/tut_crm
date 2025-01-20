@@ -18,6 +18,7 @@
       <th scope="col">City</th>
       <th scope="col">Created at</th>
       <th scope="col">ID</th>
+      <th scope="col"></th>
     </tr>
   </thead>
   <tbody class="table table-striped">
@@ -31,7 +32,8 @@
           <td>{{ client.city }}</td>
           <td>{{ client.created_at }}</td>
           <td>{{ client.id }}</td>
-    
+          <td><a href="{% url 'product' client.id %}">Product</a></td>
+          
     </tr>
         {% endfor %}
 
@@ -66,3 +68,9 @@
 {% endif %}
 
 {% endblock %}
+
+
+
+<!--<td><a href="{% url 'orders' client.id %}">Orders</a></td> 
+          <td><a href="{% url 'rent' client.id %}">Rent</a></td>
+          <td><a href="{% url 'service' client.id %}">Service</a></td>-->

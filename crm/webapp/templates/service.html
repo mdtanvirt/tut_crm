@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h1>Service List</h1>
+<p>
+<a href="{% url 'new_service' client.id %}" class="btn btn-primary">New Service</a>
+</p>
+
+<div class="card">
+    <h5 class="card-header">{{ client.id }} . {{ client.full_name }}</h5>
+    <div class="card-body">
+      <h5 class="card-title">{{ client.email }}</h5>
+      <p class="card-text">{{ order.phone }}<br>
+        {{ client.address }} <br>
+        {% for service in services %}
+        <li>
+            {{service.service_name}} - {{ service.service_date }} - $ {{ service.amount }}
+        </li>
+        {% endfor %}
+      </p>
+      <a href="{% url 'home' %}" class="btn btn-primary">Go Back</a>
+    </div>
+  </div>
+
+{% endblock %}

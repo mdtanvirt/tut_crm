@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
+from django.shortcuts import render, get_object_or_404
 from django.contrib import messages
-from .forms import RegistrationForm, AddClientForm
-from .models import Client
+from .forms import RegistrationForm, AddClientForm, NewOrderForm, NewServiceForm, NewProductForm
+from .models import Client, Order, Service
 
 def home(request):
 
@@ -101,4 +102,131 @@ def client_update(request, pk):
         return render(request, 'client_update.html', {'form':form})
     else:
         messages.success(request, "You have to login...")
+        return redirect('home')
+    
+
+# For order View
+def orders(request, client_pk):
+    if request.user.is_authenticated:
+        # Look up the specific client data
+        client = Client.objects.get(pk=client_pk)
+        order_list = client.orders.all()
+        return render(request, 'order.html', {'client': client, 'order_list':order_list})
+    else:
+        messages.success(request, 'You have to login...')
+        return redirect('home')
+    
+
+# For new order creation
+def new_order(request, client_pk):
+    if request.user.is_authenticated:
+        client = get_object_or_404(Client, id=client_pk)
+        order_list = client.orders.all()
+        if request.method == 'POST':
+            form = NewOrderForm(request.POST, client=client)
+            if form.is_valid():
+                order = form.save(commit=False)
+                order.client = client
+                order.save()
+                messages.success(request, "New order created...")
+                #return redirect('home')
+                return render(request, 'order.html', {'client': client, 'order_list':order_list})
+            else:
+                messages.success(request, "Order not created...")
+                form = NewOrderForm(client=client)
+        else:
+            form = NewOrderForm(client=client)
+        return render(request, 'new_order.html', {'form':form})
+    else:
+        messages.success(request, "You are not allow to create new order")
+        return redirect('home')
+    
+# For rent info retival
+def rent(request, client_pk):
+    if request.user.is_authenticated:
+        client = get_object_or_404(Client, pk=client_pk)
+        rents = client.rent_set.all()
+        return render(request, 'rent.html', {'client':client, 'rents':rents})
+    else:
+        messages.success(request, "You have to login to view rent info")
+        return redirect('home')
+    
+# For rent addition
+def new_rent(request, client_pk):
+    if request.user.is_authenticated:
+        client = get_object_or_404(Client, pk=client_pk)
+        rents = client.rent_set.all()
+        return render(request, 'new_rent.html', {'client':client, 'rents':rents})
+    else:
+        messages.success(request, "You have to login to view rent info")
+        return redirect('home')
+    
+
+# For service list view
+def service(request, client_pk):
+    if request.user.is_authenticated:
+        client = get_object_or_404(Client, pk=client_pk)
+        #service = client.service_set.all()
+        services = client.service.all()
+        return render(request, 'service.html', {'client': client, 'services':services})
+    else:
+        messages.success(request, "You have to login first...")
+        return redirect('home')
+    
+# For service add
+def new_service(request, client_pk):
+    if request.user.is_authenticated:
+        client = get_object_or_404(Client, id=client_pk)
+        services = client.service.all()
+        if request.method == 'POST':
+            form = NewServiceForm(request.POST, client=client)
+            if form.is_valid():
+                service = form.save(commit=False)
+                service.client = client
+                service.save()
+                messages.success(request, "New service created...")
+                #return redirect('home')
+                return render(request, 'service.html', {'client': client, 'services':services})
+            else:
+                messages.success(request, "Service not created...")
+                form = NewServiceForm(client=client)
+        else:
+            form = NewServiceForm(client=client)
+        return render(request, 'new_service.html', {'form':form})
+    else:
+        messages.success(request, "You are not allow to create new service")
+        return redirect('home')
+    
+#for Product
+def product(request, client_pk):
+    if request.user.is_authenticated:
+        client = get_object_or_404(Client, id=client_pk)
+        products = client.product.all()
+        return render(request, 'product.html', {'client':client, 'products':products})
+    else:
+        messages.success(request, "You have to login first.")
+        return redirect('home')
+    
+# For product purchase record add
+
+def new_product(request, client_pk):
+    if request.user.is_authenticated:
+        client = get_object_or_404(Client, id=client_pk) # get the client ID
+        products = client.product.all() # client wise product list get
+        if request.method == 'POST':
+            form = NewProductForm(request.POST, client=client)
+            if form.is_valid():
+                product = form.save(commit=False) # this is not fonal save to the DB
+                product.client = client # set the client ID
+                product.save() # Now save to the DB
+                messages.success(request, "New addedd successfully...")
+                return render(request, 'product.html', {'client': client, 'products':products})
+            else:
+                messages.success(request, "Product not added")
+                form = new_product(client=client)
+        else:
+            form = NewProductForm(client=client) # here I am passing the client ID and set the client ID
+        return render(request, 'new_product.html', {'form':form})
+    else:
+        messages.success(request, "You are not allow to access this page")
         return redirect('home')
