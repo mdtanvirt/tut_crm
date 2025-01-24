@@ -1,6 +1,10 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, get_object_or_404
+import csv
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from django.http import HttpResponse
 from django.contrib import messages
 from .forms import RegistrationForm, AddClientForm, NewOrderForm, NewServiceForm, NewProductForm
 from .models import Client, Order, Service
@@ -230,3 +234,52 @@ def new_product(request, client_pk):
     else:
         messages.success(request, "You are not allow to access this page")
         return redirect('home')
+
+# for csv export
+def export_csv(request):
+    response = HttpResponse(content_type = 'text/csv')
+    response['Content-Disposition'] = 'attachment; filename="client.csv"'
+
+    # create a csv writer
+    writer = csv.writer(response)
+
+    # for csv header
+    writer.writerow(['full_name', 'email', 'phone', 'city'])
+
+    # Fetch client data 
+    client_data = Client.objects.all()
+    for client in client_data:
+        writer.writerow([client.full_name, client.email, client.phone, client.city])
+    return response
+
+# for pdf export
+def export_pdf(request):
+    response = HttpResponse(content_type = 'application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="client.pdf"'
+
+    #create pdf object
+    pdf_data = canvas.Canvas(response, pagesize=letter)
+    width, height = letter
+
+    pdf_data.setFont("Helvetica-Bold", 12)
+    pdf_data.drawString(100, height - 100, "full_name")
+    pdf_data.drawString(250, height - 100, "email")
+    pdf_data.drawString(350, height - 100, "phone")
+
+    # Add table data 
+    pdf_data.setFont("Helvetica", 10)
+    y = height - 120
+    client_data = Client.objects.all()
+    for client in client_data:
+        pdf_data.drawString(100, y, str(client.full_name))
+        pdf_data.drawString(250, y, str(client.email))
+        pdf_data.drawString(350, y, str(client.phone))
+        y-=20 # move to the next row
+
+        # add a new page if content exceeds the page limit
+        if y<50:
+            pdf_data.showPage()
+            y = height - 100
+
+    pdf_data.save()
+    return response

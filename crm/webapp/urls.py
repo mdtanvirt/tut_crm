@@ -17,4 +17,6 @@ urlpatterns = [
     path('client/new_service/<int:client_pk>/', views.new_service, name='new_service'),
     path('client/product/<int:client_pk>/', views.product, name='product'),
     path('client/new_product/<int:client_pk>/', views.new_product, name='new_product'),
+    path('export_csv/', views.export_csv, name='export_csv'),
+    path('export_pdf/', views.export_pdf, name='export_pdf'),
 ]
